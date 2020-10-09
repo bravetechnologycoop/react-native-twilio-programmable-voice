@@ -81,18 +81,18 @@
             _settings = [[NSMutableDictionary alloc] initWithDictionary:params];
             if(![params objectForKey:@"appName"].length == 0) {
                 id mutableParams = [params mutableCopy];
-                [mutableParams setObject:NSString *appName = [[NSBundle bundleWithIdentifier:@"BundleIdentifier"] objectForInfoDictionaryKey:@"CFBundleExecutable"];
+                [mutableParams setObject:[[NSBundle bundleWithIdentifier:@"BundleIdentifier"] objectForInfoDictionaryKey:@"CFBundleExecutable"]
                                   forKey:@"appName"];
+                
                 params = [NSDictionary dictionaryWithDictionary:mutableParams];
             }
             
-            NSLocalizedStringWithDefaultValue(params[@"appName"], nil, [NSBundle mainBundle], params[@"appName"], @"Application Name.");
-
             
             CXProviderConfiguration *configuration = [CXProviderConfiguration alloc];
             if([configuration respondsToSelector:@selector(init)]) {
                 configuration = [configuration init];
             } else {
+                NSLocalizedStringWithDefaultValue(params[@"appName"], nil, [NSBundle mainBundle], params[@"appName"], @"Application Name.");
                 configuration = [configuration initWithLocalizedName:params[@"appName"]];
             }
 
