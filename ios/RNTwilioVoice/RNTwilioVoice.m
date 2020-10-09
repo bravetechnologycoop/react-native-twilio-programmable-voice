@@ -90,16 +90,12 @@
 
             
             CXProviderConfiguration *configuration = [CXProviderConfiguration alloc];
-            
-            if([[[UIDevice currentDevice] systemVersion] floatValue] >= 14.0) {
-                #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+            if([configuration respondsToSelector:@selector(init)]) {
                 configuration = [configuration init];
-                #else
-                configuration = [configuration initWithLocalizedName:params[@"appName"]];
-                #endif
             } else {
                 configuration = [configuration initWithLocalizedName:params[@"appName"]];
             }
+
 
             configuration.maximumCallGroups = 1;
             configuration.maximumCallsPerCallGroup = 1;
