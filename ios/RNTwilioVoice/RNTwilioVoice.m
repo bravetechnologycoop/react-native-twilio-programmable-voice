@@ -92,7 +92,11 @@
             CXProviderConfiguration *configuration = [CXProviderConfiguration alloc];
             
             if([[[UIDevice currentDevice] systemVersion] floatValue] >= 14.0) {
+                #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
                 configuration = [configuration init];
+                #else
+                configuration = [configuration initWithLocalizedName:params[@"appName"]];
+                #endif
             } else {
                 configuration = [configuration initWithLocalizedName:params[@"appName"]];
             }
