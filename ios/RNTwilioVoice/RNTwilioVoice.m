@@ -79,7 +79,13 @@
             self.audioDevice = [TVODefaultAudioDevice audioDevice];
             TwilioVoice.audioDevice = self.audioDevice;
             _settings = [[NSMutableDictionary alloc] initWithDictionary:params];
-            CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:params[@"appName"]];
+            CXProviderConfiguration *configuration = [CXProviderConfiguration alloc];
+            if ([configuration respondsToSelector:@selector(init)]) {
+                configuration = [configuration init];
+            } else {
+                configuration = [configuration initWithLocalizedName:params[@"appName"]];
+            }
+
             configuration.maximumCallGroups = 1;
             configuration.maximumCallsPerCallGroup = 1;
             if (_settings[@"imageName"]) {
