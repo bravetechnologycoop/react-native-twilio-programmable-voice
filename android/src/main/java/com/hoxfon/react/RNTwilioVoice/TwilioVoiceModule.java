@@ -57,6 +57,8 @@ import com.twilio.voice.Voice;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_CONNECT;
 import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_DISCONNECT;
@@ -88,7 +90,6 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
     public static final String INCOMING_CALL_NOTIFICATION_ID = "INCOMING_CALL_NOTIFICATION_ID";
     public static final String NOTIFICATION_TYPE             = "NOTIFICATION_TYPE";
     public static final String CANCELLED_CALL_INVITE         = "CANCELLED_CALL_INVITE";
-
 
     public static final String ACTION_INCOMING_CALL = "com.hoxfon.react.TwilioVoice.INCOMING_CALL";
     public static final String ACTION_FCM_TOKEN     = "com.hoxfon.react.TwilioVoice.ACTION_FCM_TOKEN";
@@ -400,13 +401,14 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
 
             @Override
             public void onCallQualityWarningsChanged(Call call, 
-                                                     Set<CallQualityWarning> currentWarnings, 
-                                                     Set<CallQualityWarning> previousWarnings) {
+                                                     Set<Call.CallQualityWarning> currentWarnings, 
+                                                     Set<Call.CallQualityWarning> previousWarnings) {
 
+                Log.d(TAG, "onCallQualityWarningsChanged");                                                        
                 WritableMap params = Arguments.createMap();
                 params.putString("call_sid", call.getSid());
-                params.putString("current_warnings", String.join(",", currentWarnings));
-                params.putString("previous_warnings", String.join(",", previousWarnings));
+                params.putString("current_warnings", String.join(",", currentWarnings.stream().map(Call.CallQualityWarning::name).collect(Collectors.toSet())));
+                params.putString("previous_warnings", String.join(",", previousWarnings.stream().map(Call.CallQualityWarning::name).collect(Collectors.toSet())));
                 
                 eventManager.sendEvent(EVENT_CALL_QUALITY_WARNINGS_CHANGED, params);
             }

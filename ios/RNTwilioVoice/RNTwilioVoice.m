@@ -56,7 +56,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-  return @[@"connectionDidConnect", @"connectionDidDisconnect", @"callRejected", @"deviceReady", @"deviceNotReady", @"deviceDidReceiveIncoming", @"callInviteCancelled", @"callStateRinging", @"connectionIsReconnecting", @"connectionDidReconnect"];
+  return @[@"connectionDidConnect", @"connectionDidDisconnect", @"callRejected", @"deviceReady", @"deviceNotReady", @"deviceDidReceiveIncoming", @"callInviteCancelled", @"callStateRinging", @"connectionIsReconnecting", @"connectionDidReconnect", @"callQualityWarningsChanged"];
 }
 
 @synthesize bridge = _bridge;
@@ -124,9 +124,7 @@ RCT_EXPORT_METHOD(unregister) {
   if (cachedDeviceToken) {
       /* Clear the device token when unregistering. */
       [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCachedDeviceToken];
-      [TwilioVoice unregisterWithAccessToken:accessToken
-                                 deviceTokenData:cachedDeviceToken
-                                  completion:^(NSError * _Nullable error) {
+      [TwilioVoice unregisterWithAccessToken:accessToken deviceToken:cachedDeviceToken completion:^(NSError *error) {
                                     if (error) {
                                         /* Undo token clear on failure */
                                         [[NSUserDefaults standardUserDefaults] setObject:cachedDeviceToken forKey:kCachedDeviceToken];
@@ -261,10 +259,7 @@ RCT_REMAP_METHOD(getCallInvite,
       if (![cachedDeviceToken isEqualToData:credentials.token]) {
           cachedDeviceToken = credentials.token;
       }
-      
-      [TwilioVoice registerWithAccessToken:accessToken
-                           deviceTokenData:cachedDeviceToken
-                                completion:^(NSError *error) {
+      [TwilioVoice registerWithAccessToken:accessToken deviceToken:cachedDeviceToken completion:^(NSError * error) {
            if (error) {
                NSLog(@"An error occurred while registering: %@", [error localizedDescription]);
                NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
@@ -296,17 +291,16 @@ RCT_REMAP_METHOD(getCallInvite,
     if ([cachedDeviceToken length] > 0) {
         /* Clear the device token when unregistering. */
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCachedDeviceToken];
-        [TwilioVoice unregisterWithAccessToken:accessToken
-                                                deviceTokenData:cachedDeviceToken
-                                                 completion:^(NSError * _Nullable error) {
-                                                   if (error) {
-                                                     /* Undo token clear on failure */
-                                                     [[NSUserDefaults standardUserDefaults] setObject:cachedDeviceToken forKey:kCachedDeviceToken];
-                                                     NSLog(@"An error occurred while unregistering: %@", [error localizedDescription]);
-                                                   } else {
-                                                     NSLog(@"Successfully unregistered for VoIP push notifications.");
-                                                   }
-                                                 }];
+        
+        [TwilioVoice registerWithAccessToken:accessToken deviceToken:cachedDeviceToken completion:^(NSError *error) {
+                                if (error) {
+                                  /* Undo token clear on failure */
+                                  [[NSUserDefaults standardUserDefaults] setObject:cachedDeviceToken forKey:kCachedDeviceToken];
+                                  NSLog(@"An error occurred while unregistering: %@", [error localizedDescription]);
+                                } else {
+                                  NSLog(@"Successfully unregistered for VoIP push notifications.");
+                                }
+                              }];
     }
   }
 }
