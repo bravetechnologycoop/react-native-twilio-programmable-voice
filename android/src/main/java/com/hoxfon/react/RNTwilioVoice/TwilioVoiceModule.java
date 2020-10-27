@@ -67,6 +67,7 @@ import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CALL_STATE_RINGI
 import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CALL_INVITE_CANCELLED;
 import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CONNECTION_IS_RECONNECTING;
 import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_RECONNECT;
+import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CALL_QUALITY_WARNINGS_CHANGED;
 
 public class TwilioVoiceModule extends ReactContextBaseJavaModule implements ActivityEventListener, LifecycleEventListener {
 
@@ -395,6 +396,19 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
                 callNotificationManager.removeHangupNotification(getReactApplicationContext());
                 toNumber = "";
                 toName = "";
+            }
+
+            @Override
+            public void onCallQualityWarningsChanged(Call call, 
+                                                     Set<CallQualityWarning> currentWarnings, 
+                                                     Set<CallQualityWarning> previousWarnings) {
+
+                WritableMap params = Arguments.createMap();
+                params.putString("call_sid", call.getSid());
+                params.putString("current_warnings", String.join(",", currentWarnings));
+                params.putString("previous_warnings", String.join(",", previousWarnings));
+                
+                eventManager.sendEvent(EVENT_CALL_QUALITY_WARNINGS_CHANGED, params);
             }
         };
     }

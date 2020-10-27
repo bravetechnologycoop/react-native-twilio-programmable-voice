@@ -614,6 +614,15 @@ withCompletionHandler:(void (^)(void))completion {
     [self sendEventWithName:@"connectionDidDisconnect" body:params];
 }
 
+- (void)call:(nonnull TVOCall *)call didReceiveQualityWarnings:(nonnull NSSet<NSNumber*> *)currentWarnings previousWarnings:(nonnull NSSet<NSNumber*> *)previousWarnings {
+  NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
+  [params setObject:call.sid forKey:@"call_sid"];
+  [params setObject:[[currentWarnings allObjects] componentsJoinedByString:@","] forKey:@"current_warnings"];
+  [params setObject:[[previousWarnings allObjects] componentsJoinedByString:@","] forKey:@"previous_warnings"];
+
+  [self sendEventWithName:@"callQualityWarningsChanged" body:params];
+}
+
 #pragma mark - AVAudioSession
 - (void)toggleAudioRoute:(BOOL)toSpeaker {
     // The mode set by the Voice SDK is "VoiceChat" so the default audio route is the built-in receiver.
