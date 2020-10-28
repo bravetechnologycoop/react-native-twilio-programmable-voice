@@ -72,9 +72,11 @@ const Twilio = {
         }
         TwilioVoice.ignore()
     },
+    isMuted: TwilioVoice.isMuted,
     setMuted: TwilioVoice.setMuted,
     setSpeakerPhone: TwilioVoice.setSpeakerPhone,
     sendDigits: TwilioVoice.sendDigits,
+    isOnHold: TwilioVoice.isOnHold,
     hold: TwilioVoice.hold,
     requestPermissions(senderId) {
         if (Platform.OS === ANDROID) {

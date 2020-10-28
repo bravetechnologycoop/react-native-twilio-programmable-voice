@@ -47,6 +47,8 @@ NSString * const StateConnected = @"CONNECTED";
 NSString * const StateDisconnected = @"DISCONNECTED";
 NSString * const StateRejected = @"REJECTED";
 
+NSString * const NSRNTwilioVoiceErrorDomain = @"coop.brave.react-native-twilio-programmable-voice";
+
 - (dispatch_queue_t)methodQueue
 {
   return dispatch_get_main_queue();
@@ -159,6 +161,34 @@ RCT_REMAP_METHOD(getActiveCall,
         }
     }
     resolve(params);
+}
+
+RCT_REMAP_METHOD(isMuted,
+                 isMutedResolver:(RCTPromiseResolveBlock)resolve
+                 isMutedRejecter:(RCTPromiseRejectBlock)reject) {
+    if (self.activeCall) {
+        resolve(self.activeCall.isMuted ? @"true" : @"false");
+    } else {
+        NSDictionary *userInfo = @{
+            NSLocalizedDescriptionKey: NSLocalizedString(@"No active call", nil)
+        };
+        NSError *error = [NSError errorWithDomain:NSRNTwilioVoiceErrorDomain code:-1 userInfo:userInfo];
+        reject(@"error", @"error description", error);
+    }
+}
+
+RCT_REMAP_METHOD(isOnHold,
+                 isOnHoldResolver:(RCTPromiseResolveBlock)resolve
+                 isOnHoldRejecter:(RCTPromiseRejectBlock)reject) {
+    if (self.activeCall) {
+      resolve(self.activeCall.isOnHold ? @"true" : @"false");
+    } else {
+        NSDictionary *userInfo = @{
+            NSLocalizedDescriptionKey: NSLocalizedString(@"No active call", nil)
+        };
+        NSError *error = [NSError errorWithDomain:NSRNTwilioVoiceErrorDomain code:-1 userInfo:userInfo];
+        reject(@"error", @"error description", error);
+    }
 }
 
 RCT_REMAP_METHOD(getCallInvite,
