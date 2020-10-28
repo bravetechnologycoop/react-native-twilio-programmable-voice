@@ -876,18 +876,18 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
     @ReactMethod
     public void isOnHold(Promise promise) {
         if (activeCall != null) {
-            promise.resolve(activeCall.isOnHold())
+            promise.resolve(activeCall.isOnHold());
         } else {
-            promise.reject("No active call")
+            promise.resolve(null);
         }        
     }
 
     @ReactMethod
     public void isMuted(Promise promise) {
         if (activeCall != null) {
-            promise.resolve(activeCall.isMuted())
+            promise.resolve(activeCall.isMuted());
         } else {
-            promise.reject("No active call")
+            promise.resolve(null);
         }        
     }
 
