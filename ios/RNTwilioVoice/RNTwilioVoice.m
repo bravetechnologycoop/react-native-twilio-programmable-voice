@@ -169,11 +169,7 @@ RCT_REMAP_METHOD(isMuted,
     if (self.activeCall) {
         resolve(self.activeCall.isMuted ? @"true" : @"false");
     } else {
-        NSDictionary *userInfo = @{
-            NSLocalizedDescriptionKey: NSLocalizedString(@"No active call", nil)
-        };
-        NSError *error = [NSError errorWithDomain:NSRNTwilioVoiceErrorDomain code:-1 userInfo:userInfo];
-        reject(@"error", @"error description", error);
+        resolve(nil);
     }
 }
 
@@ -183,11 +179,7 @@ RCT_REMAP_METHOD(isOnHold,
     if (self.activeCall) {
       resolve(self.activeCall.isOnHold ? @"true" : @"false");
     } else {
-        NSDictionary *userInfo = @{
-            NSLocalizedDescriptionKey: NSLocalizedString(@"No active call", nil)
-        };
-        NSError *error = [NSError errorWithDomain:NSRNTwilioVoiceErrorDomain code:-1 userInfo:userInfo];
-        reject(@"error", @"error description", error);
+        resolve(nil);
     }
 }
 
