@@ -58,7 +58,6 @@ import com.twilio.voice.Voice;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_CONNECT;
 import static com.hoxfon.react.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_DISCONNECT;
@@ -407,12 +406,24 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
                 Log.d(TAG, "onCallQualityWarningsChanged");                                                        
                 WritableMap params = Arguments.createMap();
                 params.putString("call_sid", call.getSid());
-                params.putString("current_warnings", String.join(",", currentWarnings.stream().map(Call.CallQualityWarning::name).collect(Collectors.toSet())));
-                params.putString("previous_warnings", String.join(",", previousWarnings.stream().map(Call.CallQualityWarning::name).collect(Collectors.toSet())));
+                params.putString("current_warnings", toCallQualityWarningString(currentWarnings));
+                params.putString("previous_warnings", toCallQualityWarningString(previousWarnings));
                 
                 eventManager.sendEvent(EVENT_CALL_QUALITY_WARNINGS_CHANGED, params);
             }
         };
+    }
+
+    // Avoid using java.util.stream.Collectors to support Android devices using equivalent of Java 7;
+    private function toCallQualityWarningString(Set<Call.CallQualityWarning> warnings) {
+        StringBuilder s = new StringBuilder();
+        for(Call.CallQualityWarning warning : warnings) {
+            if (s.length() > 0) {
+                s.append(",");
+            }            
+            s.append(Call.CallQualityWarning::name);
+        }
+        return s.toString();
     }
 
     /**
