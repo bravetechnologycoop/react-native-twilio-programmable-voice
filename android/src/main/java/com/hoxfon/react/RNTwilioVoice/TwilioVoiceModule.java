@@ -421,7 +421,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
             if (s.length() > 0) {
                 s.append(",");
             }            
-            s.append(Call.CallQualityWarning::name);
+            s.append(warning.name());
         }
         return s.toString();
     }
