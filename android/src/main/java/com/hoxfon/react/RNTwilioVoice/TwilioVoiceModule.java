@@ -415,7 +415,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
     }
 
     // Avoid using java.util.stream.Collectors to support Android devices using equivalent of Java 7;
-    private function toCallQualityWarningString(Set<Call.CallQualityWarning> warnings) {
+    private String toCallQualityWarningString(Set<Call.CallQualityWarning> warnings) {
         StringBuilder s = new StringBuilder();
         for(Call.CallQualityWarning warning : warnings) {
             if (s.length() > 0) {
