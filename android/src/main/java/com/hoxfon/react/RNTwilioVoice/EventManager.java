@@ -27,6 +27,7 @@ public class EventManager {
     public static final String EVENT_CONNECTION_IS_RECONNECTING = "connectionIsReconnecting";
     public static final String EVENT_CONNECTION_DID_RECONNECT = "connectionDidReconnect";
     public static final String EVENT_CALL_QUALITY_WARNINGS_CHANGED = "callQualityWarningsChanged";
+    public static final String EVENT_AUDIO_DEVICES_CHANGED = "audioDevicesChanged";
 
     public EventManager(ReactApplicationContext context) {
         mContext = context;

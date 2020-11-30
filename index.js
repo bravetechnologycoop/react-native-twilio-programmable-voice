@@ -111,7 +111,27 @@ const Twilio = {
         }
         _eventHandlers[type].get(handler).remove()
         _eventHandlers[type].delete(handler)
-    }
+    },
+    async startAudioDeviceTracking() {
+        if (Platform.OS === ANDROID) {
+            await startAudioDeviceTracking();
+        }
+    },
+    async stopAudioDeviceTracking() {
+        if (Platform.OS === ANDROID) {
+            await stopAudioDeviceTracking();
+        }
+    },
+    async getAudioDevices() {
+        if (Platform.OS === ANDROID) {
+            return getAudioDevices();
+        }
+    },
+    async useAudioDevice(name) {
+        if (Platform.OS === ANDROID) {
+            await TwilioVoice.useAudioDevice(name)
+        }
+    },
 }
 
 export default Twilio
