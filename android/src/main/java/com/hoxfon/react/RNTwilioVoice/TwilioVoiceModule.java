@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.twilio.audioswitch.AudioDevice;
 import com.twilio.voice.AcceptOptions;
 import com.twilio.voice.Call;
 import com.twilio.voice.CallException;
@@ -58,6 +59,7 @@ import com.twilio.voice.Voice;
 import com.twilio.audioswitch.AudioSwitch;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -989,53 +991,58 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
     @ReactMethod
     public void startAudioDeviceTracking(Promise promise) {
         audioSwitch.start(new Java7AudioDeviceChangeListener() {
-            void onAudioDevicesChanged(List<AudioDevices> devices, AudioDevice selectedDevice) {
+            public void onAudioDevicesChanged(List<AudioDevice> devices, AudioDevice selectedDevice) {
                 Log.d(TAG, "Firing onAudioDevicesChanged");
-                Map audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
+                WritableMap audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
                 eventManager.sendEvent(EVENT_AUDIO_DEVICES_CHANGED, audioDeviceMap);
             }
         });
-        Promise.resolve();
+        promise.resolve(null);
     }
 
     @ReactMethod
     public void stopAudioDeviceTracking(Promise promise) {
         audioSwitch.stop();
-        promise.resolve();
+        promise.resolve(null);
     }
 
     @ReactMethod
     public void getAudioDevices(Promise promise) {
-        List<AudioDevice> devices = audioSwitch.availableAudioDevices;
-        AudioDevice selectedDevice = audioSwitch.selectedDevice;
-        Map audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
+        List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
+        AudioDevice selectedDevice = audioSwitch.getSelectedAudioDevice();
+        WritableMap audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
         promise.resolve(audioDeviceMap);
     }
 
     @ReactMethod
     public void useAudioDevice(final String name, Promise promise) {
-        List<AudioDevice> devices = audioSwitch.availableAudioDevices;
-        
-        Map audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
-        promise.resolve(audioDeviceMap);
+        List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
+        for(AudioDevice device : devices) {
+          if (device.getName().equals(name)) {
+            audioSwitch.selectDevice(device);
+            audioSwitch.activate();
+            break;
+          }
+        }
+        promise.resolve(null);
     }
 
-    private Map toAudioDevicesMap(List<AudioDevice> audioDevices, AudioDevice selectedDevice) {
+    private WritableMap toAudioDevicesMap(List<AudioDevice> audioDevices, AudioDevice selectedDevice) {
         WritableMap params = Arguments.createMap();        
-        params.putString("devices", toAudioDevicesString(devices));
+        params.putString("devices", toAudioDevicesString(audioDevices));
         if (selectedDevice != null) {
-            params.putString("selectedDevice", selectedDevice.name);
+            params.putString("selectedDevice", selectedDevice.getName());
         }
         return params;
     }
 
     private String toAudioDevicesString(List<AudioDevice> audioDevices) {
         StringBuilder s = new StringBuilder();
-        for (audioDevices audioDevice : audioDevices) {
+        for (AudioDevice audioDevice : audioDevices) {
             if (s.length() > 0) {
                 s.append(",");
             }
-            s.append(audioDevice.name);
+            s.append(audioDevice.getName());
         }
         return s.toString();
     }
