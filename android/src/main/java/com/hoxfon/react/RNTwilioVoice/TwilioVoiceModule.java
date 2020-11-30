@@ -989,19 +989,19 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
     @ReactMethod
     public void startAudioDeviceTracking(Promise promise) {
         audioSwitch.start(new Java7AudioDeviceChangeListener() {
-            onAudioDevicesChanged(List<AudioDevices> devices, AudioDevice selectedDevice) {
+            void onAudioDevicesChanged(List<AudioDevices> devices, AudioDevice selectedDevice) {
                 Log.d(TAG, "Firing onAudioDevicesChanged");
                 Map audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
                 eventManager.sendEvent(EVENT_AUDIO_DEVICES_CHANGED, audioDeviceMap);
             }
         });
-        Promise.resolve()
+        Promise.resolve();
     }
 
     @ReactMethod
     public void stopAudioDeviceTracking(Promise promise) {
         audioSwitch.stop();
-        promise.resolve()
+        promise.resolve();
     }
 
     @ReactMethod
@@ -1024,7 +1024,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
         WritableMap params = Arguments.createMap();        
         params.putString("devices", toAudioDevicesString(devices));
         if (selectedDevice != null) {
-            params.putString("selectedDevice", selectedDevice.name;
+            params.putString("selectedDevice", selectedDevice.name);
         }
         return params;
     }
