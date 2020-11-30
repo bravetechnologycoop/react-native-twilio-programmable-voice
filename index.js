@@ -115,17 +115,17 @@ const Twilio = {
     },
     async startAudioDeviceTracking() {
         if (Platform.OS === ANDROID) {
-            await startAudioDeviceTracking();
+            await TwilioVoice.startAudioDeviceTracking();
         }
     },
     async stopAudioDeviceTracking() {
         if (Platform.OS === ANDROID) {
-            await stopAudioDeviceTracking();
+            await TwilioVoice.stopAudioDeviceTracking();
         }
     },
     async getAudioDevices() {
         if (Platform.OS === ANDROID) {
-            return getAudioDevices();
+            return TwilioVoice.getAudioDevices();
         }
     },
     async useAudioDevice(name) {
