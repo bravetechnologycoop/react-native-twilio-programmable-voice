@@ -994,6 +994,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
           Log.d(TAG, "Firing onAudioDevicesChanged");
           WritableMap audioDeviceMap = toAudioDevicesMap((List<AudioDevice>) devices, selectedDevice);
           eventManager.sendEvent(EVENT_AUDIO_DEVICES_CHANGED, audioDeviceMap);
+          return null;
         });
         promise.resolve(null);
     }
