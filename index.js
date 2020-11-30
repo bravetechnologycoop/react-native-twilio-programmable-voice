@@ -25,6 +25,7 @@ const _eventHandlers = {
     callInviteCancelled: new Map(),
     callRejected: new Map(),
     callQualityWarningsChanged: new Map(),
+    audioDevicesChanged: new Map(),
 }
 
 const Twilio = {
