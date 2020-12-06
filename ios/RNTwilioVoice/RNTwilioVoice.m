@@ -58,7 +58,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-  return @[@"connectionDidConnect", @"connectionDidDisconnect", @"callRejected", @"deviceReady", @"deviceNotReady", @"deviceDidReceiveIncoming", @"callInviteCancelled", @"callStateRinging", @"connectionIsReconnecting", @"connectionDidReconnect", @"callQualityWarningsChanged"];
+  return @[@"connectionDidConnect", @"connectionDidDisconnect", @"callRejected", @"deviceReady", @"deviceNotReady", @"deviceDidReceiveIncoming", @"callInviteCancelled", @"callStateRinging", @"connectionIsReconnecting", @"connectionDidReconnect", @"callQualityWarningsChanged", @"audioDevicesChanged"];
 }
 
 @synthesize bridge = _bridge;
@@ -879,6 +879,95 @@ withCompletionHandler:(void (^)(void))completion {
     NSLog(@"handleAppTerminateNotification disconnecting an active call");
     [self.activeCall disconnect];
   }
+}
+
+RCT_EXPORT_METHOD(startAudioDeviceTracking) {
+    NSLog(@"startAudioDeviceTracking");
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChange:) name:@"AVAudioSessionRouteChangeNotification" object:nil];
+    [self sendAudioChangeEvent:0];
+}
+
+- (void)handleRouteChange:(NSNotification *)notification {
+    NSDictionary *userInfo = [notification userInfo];
+    id reasonValue = userInfo[@"AVAudioSessionRouteChangeReasonKey"];
+    NSLog(@"handleRouteChange %@", reasonValue);
+    [self sendAudioChangeEvent:reasonValue];
+}
+
+- (void)sendAudioChangeEvent:(id)reasonValue {
+    AVAudioSessionRouteDescription *currentRoute = [[AVAudioSession sharedInstance] currentRoute];
+    
+    NSArray<AVAudioSessionPortDescription *> *availableInputs = [[AVAudioSession sharedInstance] availableInputs];
+    NSMutableArray *availableInputStrings = [[NSMutableArray alloc] init];
+    for(AVAudioSessionPortDescription *availableInput in availableInputs) {
+        [availableInputStrings addObject:[self toPortString:availableInput]];
+    }
+    
+    NSArray<AVAudioSessionPortDescription *> *currentRouteOutputs = [currentRoute outputs];
+    NSMutableArray *currentRouteOutputStrings = [[NSMutableArray alloc] init];
+    for(AVAudioSessionPortDescription *output in currentRouteOutputs) {
+        [currentRouteOutputStrings addObject:[self toPortString:output]];
+    }
+    
+    NSArray<AVAudioSessionPortDescription *> *currentRouteInputs = [currentRoute inputs];
+    NSMutableArray *currentRouteInputStrings = [[NSMutableArray alloc] init];
+    for(AVAudioSessionPortDescription *input in currentRouteInputs) {
+        [currentRouteInputStrings addObject:[self toPortString:input]];
+    }
+    
+    AVAudioSessionPortDescription *preferredInput = [[AVAudioSession sharedInstance] preferredInput];
+    
+    NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
+    if (reasonValue) {
+        [params setObject:reasonValue forKey:@"reasonValue"];
+    }
+    if (preferredInput) {
+        [params setObject:[self toPortString:preferredInput] forKey:@"preferred_input"];
+    }
+    [params setObject:[availableInputStrings componentsJoinedByString:@","] forKey:@"available_inputs"];
+    [params setObject:[currentRouteOutputStrings componentsJoinedByString:@","] forKey:@"current_route_outputs"];
+    [params setObject:[currentRouteInputStrings componentsJoinedByString:@","] forKey:@"current_route_inputs"];
+
+    [self sendEventWithName:@"audioDevicesChanged" body:params];
+}
+
+RCT_EXPORT_METHOD(useAudioDevice:
+                 (NSString *)identifier
+                 useAudioDeviceResolver:(RCTPromiseResolveBlock)resolve
+                 useAudioDeviceRejecter:(RCTPromiseRejectBlock)reject) {
+
+    NSLog(@"useAudioDevice: @%", identifier);
+    AVAudioSessionRouteDescription *currentRoute = [[AVAudioSession sharedInstance] currentRoute];
+    NSArray<AVAudioSessionPortDescription *> *availableInputs = [[AVAudioSession sharedInstance] availableInputs];
+    NSError __autoreleasing *error;
+    for(AVAudioSessionPortDescription *availableInput in availableInputs) {
+        NSString *portString = [self toPortString:availableInput];
+        if ([portString isEqualToString:identifier]) {
+            [[AVAudioSession sharedInstance] setPreferredInput:availableInput error:&error];
+        }
+    }
+    if (error) {
+        reject([error localizedDescription], [error localizedDescription], nil); // TODO find docs for signature
+    } else {
+        [self sendAudioChangeEvent:0];
+        resolve(nil);
+    }
+}
+
+
+- (NSString*)toPortString:(AVAudioSessionPortDescription*)port {
+    if (port) {
+        NSString *portType = [port portType];
+        NSString *portName = [port portName];
+        return [NSString stringWithFormat:@"%@;%@", portType, portName];
+    } else {
+        return nil;
+    }
+}
+
+RCT_EXPORT_METHOD(stopAudioDeviceTracking) {
+    NSLog(@"stopAudioDeviceTracking");
+    [[NSNotificationCenter defaultCenter] removeObserver:@"AVAudioSessionRouteChangeNotification" name:nil object:nil];
 }
 
 @end

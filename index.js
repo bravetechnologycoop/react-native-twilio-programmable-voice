@@ -114,14 +114,10 @@ const Twilio = {
         _eventHandlers[type].delete(handler)
     },
     async startAudioDeviceTracking() {
-        if (Platform.OS === ANDROID) {
-            await TwilioVoice.startAudioDeviceTracking();
-        }
+        await TwilioVoice.startAudioDeviceTracking();
     },
     async stopAudioDeviceTracking() {
-        if (Platform.OS === ANDROID) {
-            await TwilioVoice.stopAudioDeviceTracking();
-        }
+        await TwilioVoice.stopAudioDeviceTracking();
     },
     async getAudioDevices() {
         if (Platform.OS === ANDROID) {
@@ -129,9 +125,7 @@ const Twilio = {
         }
     },
     async useAudioDevice(name) {
-        if (Platform.OS === ANDROID) {
-            await TwilioVoice.useAudioDevice(name)
-        }
+      await TwilioVoice.useAudioDevice(name)
     },
 }
 
