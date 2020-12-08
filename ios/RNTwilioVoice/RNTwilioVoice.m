@@ -939,18 +939,36 @@ RCT_EXPORT_METHOD(useAudioDevice:
     NSLog(@"useAudioDevice: @%", identifier);
     AVAudioSessionRouteDescription *currentRoute = [[AVAudioSession sharedInstance] currentRoute];
     NSArray<AVAudioSessionPortDescription *> *availableInputs = [[AVAudioSession sharedInstance] availableInputs];
-    NSError __autoreleasing *error;
-    for(AVAudioSessionPortDescription *availableInput in availableInputs) {
-        NSString *portString = [self toPortString:availableInput];
-        if ([portString isEqualToString:identifier]) {
-            [[AVAudioSession sharedInstance] setPreferredInput:availableInput error:&error];
+    if ([identifier isEqualToString:@"speaker"]) {
+        NSError __autoreleasing *error;
+        [[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error];
+        if (error) {
+            reject([error localizedDescription], [error localizedDescription], nil); // TODO find docs for signature
+        } else {
+            [self sendAudioChangeEvent:0];
+            resolve(nil);
         }
-    }
-    if (error) {
-        reject([error localizedDescription], [error localizedDescription], nil); // TODO find docs for signature
     } else {
-        [self sendAudioChangeEvent:0];
-        resolve(nil);
+        NSError __autoreleasing *error;
+        for(AVAudioSessionPortDescription *availableInput in availableInputs) {
+            NSString *portString = [self toPortString:availableInput];
+            if ([portString isEqualToString:identifier]) {
+                [[AVAudioSession sharedInstance] setPreferredInput:availableInput error:&error];
+            }
+        }
+        
+        if (error) {
+            reject([error localizedDescription], [error localizedDescription], nil); // TODO find docs for signature
+        } else {
+            // Set to none in case new audio device is replacement for speaker // TODO is this safe or do we need to track whether speaker is on?
+            BOOL successful = [[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:&error];
+            if (error) {
+                reject([error localizedDescription], [error localizedDescription], nil); // TODO find docs for signature
+            } else {
+                [self sendAudioChangeEvent:0];
+                resolve(nil);
+            }
+        }
     }
 }
 
