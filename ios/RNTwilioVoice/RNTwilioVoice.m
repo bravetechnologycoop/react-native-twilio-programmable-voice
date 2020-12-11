@@ -939,7 +939,7 @@ RCT_EXPORT_METHOD(useAudioDevice:
     NSLog(@"useAudioDevice: @%", identifier);
     AVAudioSessionRouteDescription *currentRoute = [[AVAudioSession sharedInstance] currentRoute];
     NSArray<AVAudioSessionPortDescription *> *availableInputs = [[AVAudioSession sharedInstance] availableInputs];
-    if ([identifier isEqualToString:@"speaker"]) {
+    if ([identifier isEqualToString:@"Speaker"]) {
         NSError __autoreleasing *error;
         [[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error];
         if (error) {
