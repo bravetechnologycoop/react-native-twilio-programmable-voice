@@ -990,40 +990,64 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void startAudioDeviceTracking(Promise promise) {
-        audioSwitch.start((devices, selectedDevice) -> {
-          Log.d(TAG, "Firing onAudioDevicesChanged");
-          WritableMap audioDeviceMap = toAudioDevicesMap((List<AudioDevice>) devices, selectedDevice);
-          eventManager.sendEvent(EVENT_AUDIO_DEVICES_CHANGED, audioDeviceMap);
-          return null;
-        });
-        promise.resolve(null);
+        try {
+            audioSwitch.start((devices, selectedDevice) -> {
+            Log.d(TAG, "Firing onAudioDevicesChanged");
+            WritableMap audioDeviceMap = toAudioDevicesMap((List<AudioDevice>) devices, selectedDevice);
+            eventManager.sendEvent(EVENT_AUDIO_DEVICES_CHANGED, audioDeviceMap);
+            return null;
+            });
+            promise.resolve(null);
+        } catch (Exception e) {
+            params.putString("error", e.getMessage());
+            Log.e(TAG, ex.toString());
+            promise.reject(ex, params);
+        }
     }
 
     @ReactMethod
     public void stopAudioDeviceTracking(Promise promise) {
-        audioSwitch.stop();
-        promise.resolve(null);
+        try {
+            audioSwitch.stop();
+            promise.resolve(null);
+        } catch (Exception e) {
+            params.putString("error", e.getMessage());
+            Log.e(TAG, ex.toString());
+            promise.reject(ex, params);
+        }
     }
 
     @ReactMethod
     public void getAudioDevices(Promise promise) {
-        List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
-        AudioDevice selectedDevice = audioSwitch.getSelectedAudioDevice();
-        WritableMap audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
-        promise.resolve(audioDeviceMap);
+        try {
+            List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
+            AudioDevice selectedDevice = audioSwitch.getSelectedAudioDevice();
+            WritableMap audioDeviceMap = toAudioDevicesMap(devices, selectedDevice);
+            promise.resolve(audioDeviceMap);
+        } catch (Exception e) {
+            params.putString("error", e.getMessage());
+            Log.e(TAG, ex.toString());
+            promise.reject(ex, params);
+        }
     }
 
     @ReactMethod
     public void useAudioDevice(final String name, Promise promise) {
-        List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
-        for(AudioDevice device : devices) {
-          if (device.getName().equals(name)) {
-            audioSwitch.selectDevice(device);
-            audioSwitch.activate();
-            break;
-          }
-        }
-        promise.resolve(null);
+        try {
+            List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
+            for(AudioDevice device : devices) {
+                if (device.getName().equals(name)) {
+                    audioSwitch.selectDevice(device);
+                    audioSwitch.activate();
+                    break;
+                }
+            }
+            promise.resolve(null);
+        } catch (Exception e) {
+            params.putString("error", e.getMessage());
+            Log.e(TAG, ex.toString());
+            promise.reject(ex, params);
+        }                
     }
 
     private WritableMap toAudioDevicesMap(List<AudioDevice> audioDevices, AudioDevice selectedDevice) {
