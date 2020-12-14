@@ -20,6 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -80,6 +83,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
   implements ActivityEventListener, LifecycleEventListener {
 
   public static String TAG = "RNTwilioVoice";
+  public static String AUDIO_SWITCH_TAG = "RNTwilioVoice/AudioSwitch";
 
   private static final int MIC_PERMISSION_REQUEST_CODE = 1;
 
@@ -989,21 +993,36 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
     }
   }
 
+  private class AudioSwitchTrackingRunnable implements Runnable {
+
+    @Override
+    public void run() {
+      try {
+        audioSwitch.start((devices, selectedDevice) -> {
+          try {
+            Log.d(AUDIO_SWITCH_TAG, "Firing onAudioDevicesChanged");
+            WritableMap audioDeviceMap = toAudioDevicesMap((List<AudioDevice>) devices, selectedDevice);
+            eventManager.sendEvent(EVENT_AUDIO_DEVICES_CHANGED, audioDeviceMap);
+          } catch (Exception e) {
+            Log.e(AUDIO_SWITCH_TAG, e.toString());
+          } finally {
+            return null;
+          }
+        });
+      } catch (Exception e) {
+        Log.e(AUDIO_SWITCH_TAG, e.toString());
+      }
+    }
+  }
+
   @ReactMethod
   public void startAudioDeviceTracking(Promise promise) {
     try {
-      audioSwitch.start((devices, selectedDevice) -> {
-        Log.d(TAG, "Firing onAudioDevicesChanged");
-        WritableMap audioDeviceMap = toAudioDevicesMap((List<AudioDevice>) devices, selectedDevice);
-        eventManager.sendEvent(EVENT_AUDIO_DEVICES_CHANGED, audioDeviceMap);
-        return null;
-      });
+      new Handler(Looper.getMainLooper()).post(new AudioSwitchTrackingRunnable());
       promise.resolve(null);
     } catch (Exception e) {
-      WritableMap params = Arguments.createMap();
-      params.putString("error", e.getMessage());
-      Log.e(TAG, e.toString());
-      promise.reject(e, params);
+      Log.e(AUDIO_SWITCH_TAG, e.toString());
+      promise.reject(e, null);
     }
   }
 
@@ -1015,7 +1034,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
     } catch (Exception e) {
       WritableMap params = Arguments.createMap();
       params.putString("error", e.getMessage());
-      Log.e(TAG, e.toString());
+      Log.e(AUDIO_SWITCH_TAG, e.toString());
       promise.reject(e, params);
     }
   }
@@ -1030,7 +1049,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
     } catch (Exception e) {
       WritableMap params = Arguments.createMap();
       params.putString("error", e.getMessage());
-      Log.e(TAG, e.toString());
+      Log.e(AUDIO_SWITCH_TAG, e.toString());
       promise.reject(e, params);
     }
   }
@@ -1054,7 +1073,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
     } catch (Exception e) {
       WritableMap params = Arguments.createMap();
       params.putString("error", e.getMessage());
-      Log.e(TAG, e.toString());
+      Log.e(AUDIO_SWITCH_TAG, e.toString());
       promise.reject(e, params);
     }
   }
