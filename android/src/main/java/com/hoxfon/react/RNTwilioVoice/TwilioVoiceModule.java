@@ -58,6 +58,7 @@ import com.twilio.voice.Voice;
 
 import com.twilio.audioswitch.AudioSwitch;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1038,7 +1039,11 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
   public void useAudioDevice(final String name, Promise promise) {
     try {
       List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
-      for(AudioDevice device : devices) {
+      // Clone devices before iterating to avoid ConcurrentModificationException as AudioSwitch uses a singleton
+      // TODO check if ArrayList constructor is itself vulnerable to concurrent modification exceptions
+      // TODO verify this actually addresses problem
+      List<AudioDevice> copyOfDevices = new ArrayList<AudioDevice>(devices);
+      for(AudioDevice device : copyOfDevices) {
         if (device.getName().equals(name)) {
           audioSwitch.selectDevice(device);
           audioSwitch.activate();
@@ -1064,8 +1069,12 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule
   }
 
   private String toAudioDevicesString(List<AudioDevice> audioDevices) {
+    // Clone devices before iterating to avoid ConcurrentModificationException as AudioSwitch uses a singleton
+    // TODO check if ArrayList constructor is itself vulnerable to concurrent modification exceptions
+    // TODO verify this actually addresses problem      
+    List<AudioDevice> copyOfDevices = new ArrayList<AudioDevice>(audioDevices);
     StringBuilder s = new StringBuilder();
-    for (AudioDevice audioDevice : audioDevices) {
+    for (AudioDevice audioDevice : copyOfDevices) {
       if (s.length() > 0) {
         s.append(",");
       }
