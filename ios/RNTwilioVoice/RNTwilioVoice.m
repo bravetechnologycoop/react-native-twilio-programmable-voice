@@ -281,6 +281,11 @@ RCT_REMAP_METHOD(getCallInvite,
       if (![cachedDeviceToken isEqualToData:credentials.token]) {
           cachedDeviceToken = credentials.token;
       }
+      
+      NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
+      [params setObject:credentials.token forKey:@"token"];
+      [self sendEventWithName:@"apnsTokenUpdated" body:params];
+      
       [TwilioVoice registerWithAccessToken:accessToken deviceToken:cachedDeviceToken completion:^(NSError * error) {
            if (error) {
                NSLog(@"An error occurred while registering: %@", [error localizedDescription]);
