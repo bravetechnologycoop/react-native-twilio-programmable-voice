@@ -281,9 +281,14 @@ RCT_REMAP_METHOD(getCallInvite,
       if (![cachedDeviceToken isEqualToData:credentials.token]) {
           cachedDeviceToken = credentials.token;
       }
-      
+      NSMutableString *tokenString = [NSMutableString string];
+      NSUInteger deviceTokenLength = credentials.token.length;
+      const unsigned char *bytes = credentials.token.bytes;
+      for (NSUInteger i = 0; i < deviceTokenLength; i++) {
+          [tokenString appendFormat:@"%02x", bytes[i]];
+      }
       NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
-      [params setObject:credentials.token forKey:@"token"];
+      [params setObject:tokenString forKey:@"token"];
       [self sendEventWithName:@"apnsTokenUpdated" body:params];
       
       [TwilioVoice registerWithAccessToken:accessToken deviceToken:cachedDeviceToken completion:^(NSError * error) {
