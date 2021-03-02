@@ -80,6 +80,8 @@ const Twilio = {
     sendDigits: TwilioVoice.sendDigits,
     isOnHold: TwilioVoice.isOnHold,
     hold: TwilioVoice.hold,
+    activateKeepAwake: TwilioVoice.activateKeepAwake,
+    deactivateKeepAwake: TwilioVoice.deactivateKeepAwake,
     requestPermissions(senderId) {
         if (Platform.OS === ANDROID) {
             TwilioVoice.requestPermissions(senderId)
