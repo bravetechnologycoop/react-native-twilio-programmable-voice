@@ -87,6 +87,8 @@ RCT_EXPORT_METHOD(connect: (NSDictionary *)params) {
   UIDevice* device = [UIDevice currentDevice];
   device.proximityMonitoringEnabled = YES;
 
+    [self startAudioDeviceTracking];
+    
   if (self.activeCall && self.activeCall.state == TVOCallStateConnected) {
     [self performEndCallActionWithUUID:self.activeCall.uuid];
   } else {
@@ -537,9 +539,11 @@ withCompletionHandler:(void (^)(void))completion {
 
 #pragma mark - TVOCallDelegate
 - (void)callDidConnect:(TVOCall *)call {
-     NSLog(@"callDidConnect");
-  self.callKitCompletionCallback(YES);
-
+    NSLog(@"callDidConnect");
+    self.callKitCompletionCallback(YES);
+    
+    [self startAudioDeviceTracking];
+    
   NSMutableDictionary *callParams = [[NSMutableDictionary alloc] init];
   [callParams setObject:call.sid forKey:@"call_sid"];
   if (call.state == TVOCallStateConnecting) {
@@ -617,6 +621,8 @@ withCompletionHandler:(void (^)(void))completion {
 
     self.userInitiatedDisconnect = NO;
 
+    [self stopAudioDeviceTracking];
+    
     NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
     if (error) {
         NSString* errMsg = [error localizedDescription];
@@ -891,13 +897,13 @@ withCompletionHandler:(void (^)(void))completion {
   }
 }
 
-RCT_EXPORT_METHOD(startAudioDeviceTracking) {
+- (void)startAudioDeviceTracking {
     NSLog(@"startAudioDeviceTracking");
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChange:) name:@"AVAudioSessionRouteChangeNotification" object:nil];
     [self sendAudioChangeEvent:0];
 }
 
-RCT_EXPORT_METHOD(stopAudioDeviceTracking) {
+- (void)stopAudioDeviceTracking {
     NSLog(@"stopAudioDeviceTracking");
     [[NSNotificationCenter defaultCenter] removeObserver:@"AVAudioSessionRouteChangeNotification" name:nil object:nil];
 }

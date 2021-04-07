@@ -116,12 +116,6 @@ const Twilio = {
         _eventHandlers[type].get(handler).remove()
         _eventHandlers[type].delete(handler)
     },
-    async startAudioDeviceTracking() {
-        await TwilioVoice.startAudioDeviceTracking();
-    },
-    async stopAudioDeviceTracking() {
-        await TwilioVoice.stopAudioDeviceTracking();
-    },
     async getAudioDevices() {
         if (Platform.OS === ANDROID) {
             return TwilioVoice.getAudioDevices();
