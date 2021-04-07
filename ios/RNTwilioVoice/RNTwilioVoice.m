@@ -897,6 +897,11 @@ RCT_EXPORT_METHOD(startAudioDeviceTracking) {
     [self sendAudioChangeEvent:0];
 }
 
+RCT_EXPORT_METHOD(stopAudioDeviceTracking) {
+    NSLog(@"stopAudioDeviceTracking");
+    [[NSNotificationCenter defaultCenter] removeObserver:@"AVAudioSessionRouteChangeNotification" name:nil object:nil];
+}
+
 - (void)handleRouteChange:(NSNotification *)notification {
     NSDictionary *userInfo = [notification userInfo];
     id reasonValue = userInfo[@"AVAudioSessionRouteChangeReasonKey"];
@@ -991,11 +996,6 @@ RCT_EXPORT_METHOD(useAudioDevice:
     } else {
         return nil;
     }
-}
-
-RCT_EXPORT_METHOD(stopAudioDeviceTracking) {
-    NSLog(@"stopAudioDeviceTracking");
-    [[NSNotificationCenter defaultCenter] removeObserver:@"AVAudioSessionRouteChangeNotification" name:nil object:nil];
 }
 
 RCT_REMAP_METHOD(activateKeepAwake,
