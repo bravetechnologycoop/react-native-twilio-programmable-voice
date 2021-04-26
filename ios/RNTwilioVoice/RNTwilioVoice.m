@@ -1007,14 +1007,16 @@ RCT_EXPORT_METHOD(useAudioDevice:
 RCT_REMAP_METHOD(activateKeepAwake,
                  activateKeepAwakeResolver:(RCTPromiseResolveBlock)resolve
                  activateKeepAwakeRejecter:(RCTPromiseRejectBlock)reject) {
-    [[UIApplication sharedApplication] setIdleTimerDisabled:NO]; // Must be run on main thread, currently handled by overriding methodQueue
+    NSLog(@"Activate keep awake");
+    [[UIApplication sharedApplication] setIdleTimerDisabled:YES]; // Must be run on main thread, currently handled by overriding methodQueue
     resolve(nil);
 }
 
 RCT_REMAP_METHOD(deactivateKeepAwake,
                  deactivateKeepAwakeResolver:(RCTPromiseResolveBlock)resolve
                  deactivateKeepAwakeRejecter:(RCTPromiseRejectBlock)reject) {
-    [[UIApplication sharedApplication] setIdleTimerDisabled:YES]; // Must be run on main thread, currently handled by overriding methodQueue
+    NSLog(@"Deactivate keep awake");
+    [[UIApplication sharedApplication] setIdleTimerDisabled:NO]; // Must be run on main thread, currently handled by overriding methodQueue
     resolve(nil);
 }
 
