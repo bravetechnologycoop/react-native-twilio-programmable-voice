@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {},
   "homepage": "https://github.com/hoxfon/react-native-twilio-programmable-voice",
   "keywords": [
     "twilio",
@@ -33,6 +32,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "react-native": "^0.63.2"
+    "react-native": "^0.64.2"
   }
 }
